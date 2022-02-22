@@ -3,11 +3,6 @@ import streamlit as st
 import plotly.express as px
 import plotly.graph_objects as go
 import numpy as np
-import matplotlib.pyplot as plt
-import requests 
-import statsmodels.api as sm #Linear regression
-import re  #regular expressions
-from io import StringIO, BytesIO
 
 from statsmodels.tsa.statespace.sarimax import SARIMAXResults
 
@@ -20,7 +15,6 @@ from dateutil.relativedelta import relativedelta
 import zipfile
 with zipfile.ZipFile('corn_sarima_18-02.zip', 'r') as zip_ref:
     zip_ref.extractall()
-
 
 @st.cache
 def get_df(filename):

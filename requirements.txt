@@ -12,7 +12,7 @@ backports.zoneinfo == 0.2.1
 
 # C:\Users\Pedro\Desktop\Refactor corn\corn-predict-app.venv\Lib\site-packages\pip\_vendor\requests\__init__.py: 110
 # C:\Users\Pedro\Desktop\Refactor corn\corn-predict-app.venv\Lib\site-packages\pip\_vendor\requests\help.py: 23
-# C:\Users\Pedro\Desktop\Refactor corn\corn-predict-app.venv\Lib\site-packages\pip\_vendor\urllib3\contrib\pyopenssl.py: 56,149
+# C:\Users\Pedro\Desktop\Refactor corn\corn-predict-app.venv\Lib\site-packages\pip\_vendor\urllib3\contrib\pypssl.py: 56,149
 cryptography == 35.0.0
 
 # C:\Users\Pedro\Desktop\Refactor corn\corn-predict-app.venv\Lib\site-packages\pip\_vendor\html5lib\treeadapters\genshi.py: 4
