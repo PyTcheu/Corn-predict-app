@@ -269,10 +269,6 @@ python-plugin-sdk == 6.0.1
 # C:\Users\Pedro\Desktop\Refactor corn\app.py: 18
 python_dateutil == 2.8.2
 
-# C:\Users\Pedro\Desktop\Refactor corn\corn-predict-app.venv\Lib\site-packages\pip\_vendor\appdirs.py: 508
-# C:\Users\Pedro\Desktop\Refactor corn\corn-predict-app.venv\Lib\site-packages\pkg_resources\_vendor\appdirs.py: 497
-# C:\Users\Pedro\Desktop\Refactor corn\corn-predict-app.venv\Lib\site-packages\setuptools\_distutils\msvccompiler.py: 33
-pywin32 == 301
 
 # C:\Users\Pedro\Desktop\Refactor corn\app.py: 7
 # C:\Users\Pedro\Desktop\Refactor corn\corn-predict-app.venv\Lib\site-packages\pip\_vendor\requests\adapters.py: 86
