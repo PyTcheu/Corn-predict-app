@@ -12,9 +12,9 @@ from datetime import date
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
-#import zipfile
-#with zipfile.ZipFile('corn_sarima_18-02.zip', 'r') as zip_ref:
-#    zip_ref.extractall()
+import zipfile
+with zipfile.ZipFile('corn_sarima_18-02.zip', 'r') as zip_ref:
+    zip_ref.extractall()
 
 @st.cache
 def get_df(filename):
