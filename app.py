@@ -3,6 +3,7 @@ import streamlit as st
 import plotly.express as px
 import plotly.graph_objects as go
 import numpy as np
+import pickle
 
 from statsmodels.tsa.statespace.sarimax import SARIMAXResults
 
@@ -26,7 +27,8 @@ def get_df(filename):
     return df
 
 filename = 'Milho B3 - D.csv'
-model = SARIMAXResults.load('corn_sarima_18-02.pkl')
+model_filename = 'corn_sarima_18-02.sav'
+model = SARIMAXResults.load(model_filename)
 
 df = get_df(filename)
 
