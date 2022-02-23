@@ -12,9 +12,9 @@ from datetime import date
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
-import zipfile
-with zipfile.ZipFile('corn_sarima_18-02.zip', 'r') as zip_ref:
-    zip_ref.extractall()
+#import zipfile
+#with zipfile.ZipFile('corn_sarima_18-02.zip', 'r') as zip_ref:
+#    zip_ref.extractall()
 
 @st.cache
 def get_df(filename):
@@ -110,6 +110,11 @@ def get_delta_interval(start_date, interval):
     d1 = datetime.strptime(d1, date_format)
     delta = (d1 + relativedelta(months=interval))
     return delta
+
+def calculate_delta(x, y):
+    delta = ((y - x)/x) * 100
+    return str(delta.round(2)) + '%'
+
     
 results = loaded_results(model, df_daily_diff_model, '2021-11-07', '2021-11-15')
 df_val_loaded = results[0]
@@ -121,6 +126,8 @@ today = date.today().strftime("%d-%m-%Y")
 
 
 df_daily_ts = dt.transform_reset_indexes(df_daily)
+
+
 df_daily_ts = df_daily_ts[df_daily_ts.index > get_delta_interval(today, -6)].reset_index()
 df_daily_ts['Data'] = df_daily_ts['Data'].astype('str')
 df_daily_ts['Data'] = df_daily_ts['Data'].str.split(' ',expand=True)[0]
@@ -140,11 +147,16 @@ with st.sidebar.form(key='inputs_form'):
 st.title("Demo - Forecasting Milho B3")
 
 #KPIs
+nxt_price = get_next_price(df_val_autocorrected)
+nxt_price_3m = get_future_prices_periods(df_val_autocorrected,3)
+nxt_price_6m = get_future_prices_periods(df_val_autocorrected,6)
+nxt_price_12m = get_future_prices_periods(df_val_autocorrected,11)
+
 col1, col2, col3, col4 = st.columns(4)
-col1.metric('Próx Preço', 'R$: ' + str(get_next_price(df_val_autocorrected)))
-col2.metric("Preço 3 Meses", 'R$: ' + str(get_future_prices_periods(df_val_autocorrected,3)))
-col3.metric("Preço 6 Meses", 'R$: ' + str(get_future_prices_periods(df_val_autocorrected,6)))
-col4.metric("Preço 12 Meses", 'R$: ' + str(get_future_prices_periods(df_val_autocorrected,11)))
+col1.metric('Próx Preço', 'R$: ' + str(nxt_price))
+col2.metric("Preço 3 Meses", 'R$: ' + str(nxt_price_3m), delta=calculate_delta(nxt_price, nxt_price_3m))
+col3.metric("Preço 6 Meses", 'R$: ' + str(nxt_price_6m), delta=calculate_delta(nxt_price, nxt_price_6m))
+col4.metric("Preço 12 Meses", 'R$: ' + str(nxt_price_12m), delta=calculate_delta(nxt_price, nxt_price_12m))
 
 #col5.metric('Erro Médio²', results[2].round(2))
 
@@ -154,20 +166,24 @@ st_fig = go.Figure()
 
 fig1 = go.Scatter(
     x = df_daily_ts.index,
-    y = df_daily_ts['Milho B3 - D']
+    y = df_daily_ts['Milho B3 - D'],
+    mode='lines+markers',
+    name='Preço Executado',
 )
 
 fig2 = go.Scatter(
     x = df_val_loaded_ts.index,
-    y = df_val_loaded_ts['Predicted Price']
+    y = df_val_loaded_ts['Predicted Price'],
+    mode='lines+markers',
+    name='Preço Estimado'
 )
-
 
 
 
 st_fig.add_trace(fig1)
 st_fig.add_trace(fig2)
 
+st_fig.update_traces(textposition="bottom right")
 
 #fig3 = go.Figure(data=fig1.data,
 #                 layout={'xaxis':{'title':'Data'},
