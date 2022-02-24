@@ -3,7 +3,7 @@ import streamlit as st
 import plotly.express as px
 import plotly.graph_objects as go
 import numpy as np
-import pickle
+from plotly.graph_objs.scatter import Line
 
 from statsmodels.tsa.statespace.sarimax import SARIMAXResults
 
@@ -29,6 +29,7 @@ def get_df(filename):
 filename = 'Milho B3 - D.csv'
 model_filename = 'corn_sarima_18-02.sav'
 model = SARIMAXResults.load(model_filename)
+today = date.today().strftime("%d-%m-%Y")
 
 df = get_df(filename)
 
@@ -119,24 +120,26 @@ def calculate_delta(x, y):
 
     
 results = loaded_results(model, df_daily_diff_model, '2021-11-07', '2021-11-15')
-df_val_loaded = results[0]
-df_val_autocorrected = dt.temp_autocorrection(df_val_loaded, 40)
-
-
-today = date.today().strftime("%d-%m-%Y")
-
-
+df_val_autocorrected = dt.temp_autocorrection(results[0], 60, results[2])
 
 df_daily_ts = dt.transform_reset_indexes(df_daily)
 
 
-df_daily_ts = df_daily_ts[df_daily_ts.index > get_delta_interval(today, -6)].reset_index()
-df_daily_ts['Data'] = df_daily_ts['Data'].astype('str')
-df_daily_ts['Data'] = df_daily_ts['Data'].str.split(' ',expand=True)[0]
-df_daily_ts['Ano'] = df_daily_ts['Data'].str.split('-',expand=True)[0]
-df_daily_ts['Mes'] = df_daily_ts['Data'].str.split('-',expand=True)[1]
-df_daily_ts = df_daily_ts.groupby(['Ano','Mes']).min().reset_index()[['Data','Milho B3 - D']]
-df_daily_ts = df_daily_ts.set_index('Data')
+def groupby_dfs(df):
+    df = df[df.index > get_delta_interval(today, -6)].reset_index()
+    df['Data'] = df['Data'].astype('str')
+    df['Data'] = df['Data'].str.split(' ',expand=True)[0]
+    df['Ano'] = df['Data'].str.split('-',expand=True)[0]
+    df['Mes'] = df['Data'].str.split('-',expand=True)[1]
+
+    df = df.sort_values('Data').groupby(['Ano','Mes']).head(1)[['Data','Milho B3 - D']]
+    df = df.set_index('Data')
+    #df = df.groupby(['Ano','Mes']).max().reset_index()[['Data','Milho B3 - D']]
+    
+    return df
+
+df_daily_ts = groupby_dfs(df_daily_ts)
+
 #df_daily_ts = df_daily_ts.groupby('Milho B3 - D').max()
 
 df_val_loaded_ts = dt.transform_reset_indexes(df_val_autocorrected)
@@ -150,8 +153,8 @@ st.title("Demo - Forecasting Milho B3")
 
 #KPIs
 nxt_price = get_next_price(df_val_autocorrected)
-nxt_price_3m = get_future_prices_periods(df_val_autocorrected,3)
-nxt_price_6m = get_future_prices_periods(df_val_autocorrected,6)
+nxt_price_3m = get_future_prices_periods(df_val_autocorrected,2)
+nxt_price_6m = get_future_prices_periods(df_val_autocorrected,5)
 nxt_price_12m = get_future_prices_periods(df_val_autocorrected,11)
 
 col1, col2, col3, col4 = st.columns(4)
@@ -160,30 +163,45 @@ col2.metric("Preço 3 Meses", 'R$: ' + str(nxt_price_3m), delta=calculate_delta(
 col3.metric("Preço 6 Meses", 'R$: ' + str(nxt_price_6m), delta=calculate_delta(nxt_price, nxt_price_6m))
 col4.metric("Preço 12 Meses", 'R$: ' + str(nxt_price_12m), delta=calculate_delta(nxt_price, nxt_price_12m))
 
+st.text(' *Variação de preços em relação ao próximo preço')
 #col5.metric('Erro Médio²', results[2].round(2))
 
 
-#figIndex = px.line(df_val_autocorrected, x=df_val_autocorrected.index, y='Predicted Price')
-st_fig = go.Figure()
+st_fig = go.Figure([
+    go.Scatter(
+        x = df_daily_ts.index,
+        y = df_daily_ts['Milho B3 - D'],
+        mode='lines+markers',
+        name='Preço Executado',
+    ),
+    go.Scatter(
+        name='Preço Médio',
+        x=df_val_autocorrected.index,
+        y=df_val_autocorrected['Predicted Price'],
+        mode='lines+markers',  
+    ),
+    go.Scatter(
+        name='Máxima',
+        x=df_val_autocorrected.index,
+        y=df_val_autocorrected['Predicted Upper'],
+        mode='lines',
+        marker=dict(color="#333"),
+        line=dict(width=0),
+        showlegend=False
+    ),
+    go.Scatter(
+        name='Mínima',
+        x=df_val_autocorrected.index,
+        y=df_val_autocorrected['Predicted Lower'],
+        marker=dict(color="#444"),
+        line=dict(width=0),
+        mode='lines',
+        fillcolor='rgba(68, 68, 68, 0.3)',
+        fill='tonexty',
+        showlegend=False
+    ),
+])
 
-fig1 = go.Scatter(
-    x = df_daily_ts.index,
-    y = df_daily_ts['Milho B3 - D'],
-    mode='lines+markers',
-    name='Preço Executado',
-)
-
-fig2 = go.Scatter(
-    x = df_val_loaded_ts.index,
-    y = df_val_loaded_ts['Predicted Price'],
-    mode='lines+markers',
-    name='Preço Estimado'
-)
-
-
-
-st_fig.add_trace(fig1)
-st_fig.add_trace(fig2)
 
 st_fig.update_traces(textposition="bottom right")
 
@@ -199,5 +217,7 @@ st_fig.update_layout(
     autosize=False,
     width=800,
     height=500,
+    yaxis_title='Preço do Milho em R$',
+    hovermode="x"
     )
 st.plotly_chart(st_fig, use_container_width=False)
