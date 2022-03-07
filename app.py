@@ -163,6 +163,8 @@ col2.metric("Preço 3 Meses", 'R$: ' + str(nxt_price_3m), delta=calculate_delta(
 col3.metric("Preço 6 Meses", 'R$: ' + str(nxt_price_6m), delta=calculate_delta(nxt_price, nxt_price_6m))
 col4.metric("Preço 12 Meses", 'R$: ' + str(nxt_price_12m), delta=calculate_delta(nxt_price, nxt_price_12m))
 
+print(df_val_autocorrected)
+
 st.text(' *Variação de preços em relação ao próximo preço')
 #col5.metric('Erro Médio²', results[2].round(2))
 
