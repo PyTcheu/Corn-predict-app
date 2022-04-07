@@ -50,7 +50,7 @@ def loaded_results(model, df, dynamic_start_date, start_date_preds):
     #pred_dynamic_wk = model.get_prediction(start=pd.to_datetime(dynamic_start_date), dynamic=True, full_results=True)
     #pred_dynamic_ci_wk = pred_dynamic_wk.conf_int()
     
-    pred_wk = model.get_forecast(steps=66)
+    pred_wk = model.get_forecast(steps=80)
     
     #forecasted_corn = pred_dynamic_wk.predicted_mean
     testCopy_wk = test_wk.copy()
