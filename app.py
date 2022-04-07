@@ -120,7 +120,7 @@ def calculate_delta(x, y):
 
     
 results = loaded_results(model, df_daily_diff_model, '2021-11-07', '2021-11-15')
-df_val_autocorrected = dt.temp_autocorrection(results[0], 60, results[2])
+df_val_autocorrected = dt.temp_autocorrection(results[0], 0, results[2])
 
 df_daily_ts = dt.transform_reset_indexes(df_daily)
 
