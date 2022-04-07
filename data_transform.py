@@ -43,7 +43,7 @@ def temp_autocorrection(df, correction_perc, rmse):
     correction_list = []
     
     for i in df['Difference'].items():
-        if (i[1] > 3) or (i[1] < -3):
+        if (i[1] > 333) or (i[1] < -333):
             correction_list.append(i[1] * (correction_perc/100))
         else:
             correction_list.append(0)
